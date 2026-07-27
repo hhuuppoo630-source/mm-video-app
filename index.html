@@ -1,68 +1,13 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تشغيل الفيديو</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #0f172a;
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
-        }
-        .box {
-            background: #1e293b;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-            max-width: 400px;
-            width: 90%;
-        }
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border-left-color: #38bdf8;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        #status {
-            font-size: 16px;
-            color: #94a3b8;
-        }
-    </style>
-</head>
-<body>
-
-<div class="box">
-    <h2>جاري تحضير الفيديو...</h2>
-    <div class="spinner"></div>
-    <div id="status">جاري استخراج رابط الفيديو من السيرفر...</div>
-</div>
-
 <script>
-    // 1. ضع رابط فيديو ok.ru المطلوب هنا
-    const targetVideoUrl = "https://ok.ru/video/1234567890"; 
+    const targetVideoUrl = "https://ok.ru/video/1234567890"; // ضع رابط الفيديو الذي تريده هنا
 
-    // 2. رابط سيرفر البايثون الخاص بك على Render
+    // رابط سيرفرك في Render مع نقطة النهاية
     const SERVER_URL = "https://mm-video-app.onrender.com/extract";
 
     async function initAndRedirect() {
         const statusDiv = document.getElementById('status');
 
         try {
-            // إرسال الطلب لسيرفر البايثون في Render
             const response = await fetch(SERVER_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -72,15 +17,14 @@
             const data = await response.json();
 
             if (data.success && data.stream_url) {
-                statusDiv.innerText = "تم الاستخراج! جاري الانتقال للمشغل...";
+                statusDiv.innerText = "تم الاستخراج! جاري فتح المشغل...";
                 
                 let cleanUrl = data.stream_url;
 
                 setTimeout(() => {
-                    // تحويل الرابط لصيغة Intent خاصة بأندرويد لتشغيله في المشغل الأساسي مباشرة
+                    // التوجيه التلقائي لمشغل أندرويد الأساسي
                     let androidIntent = "intent://" + cleanUrl.replace(/^https?:\/\//, "") + 
                                         "#Intent;scheme=https;type=video/*;end;";
-                    
                     window.location.href = androidIntent;
                 }, 500);
 
@@ -90,14 +34,10 @@
             }
 
         } catch (err) {
-            statusDiv.innerText = "حدث خطأ أثناء الاتصال بسيرفر Render!";
-            statusDiv.style.color = "#ef4444";
+            statusDiv.innerText = "جاري الاتصال بالسيرفر... (إذا كان السيرفر نائماً قد يستغرق 20 ثانية)";
+            statusDiv.style.color = "#eab308";
         }
     }
 
-    // التنفيذ التلقائي عند فتح الصفحة في التطبيق
     window.onload = initAndRedirect;
 </script>
-
-</body>
-</html>
